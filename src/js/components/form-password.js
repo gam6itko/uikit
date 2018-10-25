@@ -10,6 +10,8 @@
         define('uikit-form-password', ['uikit'], function(){
             return component || addon(UIkit2);
         });
+    } else if ( typeof module === "object" && typeof module.exports === "object" ) {
+        module.exports = addon(require('uikit'));
     }
 
 })(function(UI){

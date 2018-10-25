@@ -15,6 +15,7 @@ var pkg         = require('./package.json'),
     minifycss   = require('gulp-minify-css'),
     uglify      = require('gulp-uglify'),
     watch       = require('gulp-watch'),
+    wrap        = require('gulp-wrap-file'),
     tap         = require('gulp-tap'),
     zip         = require('gulp-zip'),
     runSequence = require('run-sequence'),
@@ -494,9 +495,14 @@ gulp.task('dist-themes-core', ['dist-themes'], function(done) {
     });
 
     Promise.all(promises).then(function(){
-        gulp.src(corejs).pipe(concat('uikit.js')).pipe(gulp.dest('./dist/js')).on('end', function(){
-            done();
-        });
+        gulp
+            .src(corejs)
+            .pipe(concat('uikit.js'))
+            .pipe(wrapin())
+            .pipe(gulp.dest('./dist/js'))
+            .on('end', function(){
+                done();
+            });
     });
 });
 
@@ -508,9 +514,15 @@ gulp.task('build-docs', function(done) {
     // minify css
     gulp.src('./docs/less/uikit.less').pipe(less()).pipe(rename({ suffix: '.docs.min' })).pipe(minifycss({advanced:false})).pipe(gulp.dest('./docs/css')).on('end', function(){
 
-        gulp.src(corejs).pipe(concat('uikit.min.js')).pipe(uglify()).pipe(gulp.dest('./docs/js')).on('end', function(){
-            done();
-        });
+        gulp
+            .src(corejs)
+            .pipe(concat('uikit.min.js'))
+            .pipe(wrapin())
+            .pipe(uglify())
+            .pipe(gulp.dest('./docs/js'))
+            .on('end', function(){
+                done();
+            });
     });
 });
 
@@ -706,3 +718,13 @@ gulp.task('sublime', ['sublime-css', 'sublime-js', 'sublime-snippets'], function
             gulp.src("dist/sublime/tmp_*.py", {read: false}).pipe(rimraf()).on('end', done);
         });
 });
+
+function wrapin()
+{
+    return wrap({
+        wrapper: function(content, file){
+            var wrapperBody = fs.readFileSync('./src/js/uikit.js').toString('utf8');
+            return wrapperBody.replace('INJECT_CONTENT_HERE', content);
+        }
+    });
+}
