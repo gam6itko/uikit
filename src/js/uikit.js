@@ -40,6 +40,6 @@
     }
 
 })(function(jQuery) {
-    var UIkit = INJECT_CONTENT_HERE;
-    return UIkit;
+    var UIkit2 = INJECT_CONTENT_HERE;
+    return UIkit2;
 });
